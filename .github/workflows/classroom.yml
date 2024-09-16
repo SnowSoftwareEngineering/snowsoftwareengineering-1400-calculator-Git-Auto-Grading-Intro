@@ -1,0 +1,60 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Test Addition
+      id: test-addition
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test Addition
+        setup-command: dotnet restore && dotnet build
+        command: dotnet test --filter "FullyQualifiedName~Setup.Jarvis.TestAddition"
+        timeout: 3
+        max-score: 3
+    - name: Test Subtraction
+      id: test-subtraction
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test Subtraction
+        setup-command: dotnet restore && dotnet build
+        command: dotnet test --filter "FullyQualifiedName~Setup.Jarvis.TestSubtraction"
+        timeout: 3
+        max-score: 3
+    - name: Test Multiplication
+      id: test-multiplication
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test Multiplication
+        setup-command: dotnet restore && dotnet build
+        command: dotnet test --filter "FullyQualifiedName~Setup.Jarvis.TestMultiplication"
+        timeout: 3
+        max-score: 3
+    - name: Test Division
+      id: test-division
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test Division
+        setup-command: dotnet restore && dotnet build
+        command: dotnet test --filter "FullyQualifiedName~Setup.Jarvis.TestDivision"
+        timeout: 3
+        max-score: 3
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-ADDITION_RESULTS: "${{steps.test-addition.outputs.result}}"
+        TEST-SUBTRACTION_RESULTS: "${{steps.test-subtraction.outputs.result}}"
+        TEST-MULTIPLICATION_RESULTS: "${{steps.test-multiplication.outputs.result}}"
+        TEST-DIVISION_RESULTS: "${{steps.test-division.outputs.result}}"
+      with:
+        runners: test-addition,test-subtraction,test-multiplication,test-division
